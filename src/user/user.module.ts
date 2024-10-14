@@ -1,0 +1,21 @@
+import { Module } from '@nestjs/common';
+import { JwtModule } from '@nestjs/jwt';
+import { MongooseModule } from '@nestjs/mongoose';
+import { User, UserSchema } from '../schema/user.schema';
+import { RolesGuard } from './roles.guard';
+import { UserController } from './user.controller';
+import { UserService } from './user.service';
+
+@Module({
+  imports: [
+    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
+    JwtModule.register({
+      secret: process.env.JWT_SECRET || 'secretKey',
+      signOptions: { expiresIn: '1h' },
+    }),
+  ],
+  providers: [UserService, RolesGuard],
+  controllers: [UserController],
+  exports: [UserService, JwtModule],
+})
+export class UserModule {}
