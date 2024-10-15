@@ -7,6 +7,8 @@ import {
   Res,
   UnauthorizedException,
   UseGuards,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Response } from 'express';
@@ -25,10 +27,20 @@ export class UserController {
   @Roles(UserRole.Any)
   @UseGuards(RolesGuard)
   @Post('register')
+  @UsePipes(new ValidationPipe())
   async register(@Body() createUserDto: CreateUserDto) {
     try {
-      return this.userService.createUser(createUserDto);
+      const existingUser = await this.userService.findUserByUsername(
+        createUserDto.username,
+      );
+      if (existingUser) {
+        throw new InternalServerErrorException('Username already exists');
+      }
+      return await this.userService.createUser(createUserDto);
     } catch (error) {
+      if (error.message === 'Username already exists') {
+        throw new InternalServerErrorException(error.message);
+      }
       throw new InternalServerErrorException('User registration failed');
     }
   }
