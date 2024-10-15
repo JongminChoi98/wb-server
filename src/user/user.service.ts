@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import * as bcrypt from 'bcrypt';
 import { Model } from 'mongoose';
@@ -10,31 +10,47 @@ export class UserService {
   constructor(@InjectModel(User.name) private userModel: Model<User>) {}
 
   async createUser(createUserDto: CreateUserDto): Promise<User> {
-    const saltRounds = 10;
-    const hashedPassword = await bcrypt.hash(
-      createUserDto.password,
-      saltRounds,
-    );
-    const newUser = new this.userModel({
-      ...createUserDto,
-      password: hashedPassword,
-    });
-    return newUser.save();
+    try {
+      const saltRounds = 10;
+      const hashedPassword = await bcrypt.hash(
+        createUserDto.password,
+        saltRounds,
+      );
+      const newUser = new this.userModel({
+        ...createUserDto,
+        password: hashedPassword,
+      });
+      return await newUser.save();
+    } catch (error) {
+      throw new InternalServerErrorException('Failed to create user');
+    }
   }
 
   async findUserByUsername(username: string): Promise<User | undefined> {
-    return this.userModel.findOne({ username }).exec();
+    try {
+      return await this.userModel.findOne({ username }).exec();
+    } catch (error) {
+      throw new InternalServerErrorException('Failed to find user by username');
+    }
   }
 
   async getAllUsers(): Promise<User[]> {
-    return this.userModel.find().exec();
+    try {
+      return await this.userModel.find().exec();
+    } catch (error) {
+      throw new InternalServerErrorException('Failed to get all users');
+    }
   }
 
   async validateUser(username: string, password: string): Promise<User | null> {
-    const user = await this.findUserByUsername(username);
-    if (user && (await bcrypt.compare(password, user.password))) {
-      return user;
+    try {
+      const user = await this.findUserByUsername(username);
+      if (user && (await bcrypt.compare(password, user.password))) {
+        return user;
+      }
+      return null;
+    } catch (error) {
+      throw new InternalServerErrorException('User validation failed');
     }
-    return null;
   }
 }

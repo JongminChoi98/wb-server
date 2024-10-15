@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  InternalServerErrorException,
   Post,
   Res,
   UnauthorizedException,
@@ -25,29 +26,41 @@ export class UserController {
   @UseGuards(RolesGuard)
   @Post('register')
   async register(@Body() createUserDto: CreateUserDto) {
-    return this.userService.createUser(createUserDto);
+    try {
+      return this.userService.createUser(createUserDto);
+    } catch (error) {
+      throw new InternalServerErrorException('User registration failed');
+    }
   }
 
   @Roles(UserRole.Any)
   @UseGuards(RolesGuard)
   @Post('login')
   async login(@Body() loginUserDto: CreateUserDto, @Res() res: Response) {
-    const user = await this.userService.validateUser(
-      loginUserDto.username,
-      loginUserDto.password,
-    );
-    if (user) {
-      const payload = {
-        username: user.username,
-        sub: user._id,
-        role: user.role,
-      };
-      const token = this.jwtService.sign(payload);
+    try {
+      const user = await this.userService.validateUser(
+        loginUserDto.username,
+        loginUserDto.password,
+      );
 
-      res.cookie('access_token', token, { httpOnly: true });
-      return res.send({ access_token: token });
-    } else {
-      throw new UnauthorizedException('Invalid credentials');
+      if (user) {
+        const payload = {
+          username: user.username,
+          sub: user._id,
+          role: user.role,
+        };
+        const token = this.jwtService.sign(payload);
+
+        res.cookie('access_token', token, { httpOnly: true });
+        return res.send({ access_token: token });
+      } else {
+        throw new UnauthorizedException('Invalid credentials');
+      }
+    } catch (error) {
+      if (error instanceof UnauthorizedException) {
+        throw error;
+      }
+      throw new InternalServerErrorException('Login failed');
     }
   }
 
@@ -55,21 +68,23 @@ export class UserController {
   @UseGuards(RolesGuard)
   @Post('logout')
   async logout(@Res() res: Response) {
-    res.clearCookie('access_token');
-    return res.send({ message: 'Logged out successfully' });
+    try {
+      res.clearCookie('access_token');
+      return res.send({ message: 'Logged out successfully' });
+    } catch (error) {
+      throw new InternalServerErrorException('Logout failed');
+    }
   }
 
   @Roles(UserRole.Client)
   @UseGuards(RolesGuard)
   @Get('profile')
   async getProfile() {
-    return 'User profile information';
-  }
-
-  @Roles(UserRole.Any)
-  @UseGuards(RolesGuard)
-  @Get('all')
-  async getAllUsers() {
-    return this.userService.getAllUsers();
+    try {
+      // 유저 정보 요청 작성
+      return 'User profile information';
+    } catch (error) {
+      throw new InternalServerErrorException('Failed to get profile');
+    }
   }
 }
