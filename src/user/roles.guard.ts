@@ -1,7 +1,13 @@
-import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
+import {
+  CanActivate,
+  ExecutionContext,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
+import { AuthenticatedRequest } from 'src/interfaces/authenticated-request.interface';
 import { ROLES_KEY, UserRole } from './decorator/roles.decorator';
 
 @Injectable()
@@ -17,15 +23,16 @@ export class RolesGuard implements CanActivate {
       [context.getHandler(), context.getClass()],
     );
     if (!requiredRoles) {
-      return true; // 역할이 지정되지 않은 경우 접근 허용
+      return true;
     }
 
-    // UserRole.Any인 경우 토큰 없이 접근 허용
     if (requiredRoles.includes(UserRole.Any)) {
       return true;
     }
 
-    const request = context.switchToHttp().getRequest<Request>();
+    const request = context
+      .switchToHttp()
+      .getRequest<Request>() as AuthenticatedRequest;
     const authHeader = request.headers.authorization;
     let token: string | undefined;
 
@@ -41,9 +48,10 @@ export class RolesGuard implements CanActivate {
 
     try {
       const user = this.jwtService.verify(token);
+      request.user = user;
       return requiredRoles.includes(user.role);
     } catch (e) {
-      return false;
+      throw new UnauthorizedException('Invalid token');
     }
   }
 }

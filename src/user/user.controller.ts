@@ -4,6 +4,7 @@ import {
   Get,
   InternalServerErrorException,
   Post,
+  Req,
   Res,
   UnauthorizedException,
   UseGuards,
@@ -12,6 +13,7 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Response } from 'express';
+import { AuthenticatedRequest } from 'src/interfaces/authenticated-request.interface';
 import { RolesGuard } from './roles.guard';
 import { Roles, UserRole } from './decorator/roles.decorator';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -57,8 +59,8 @@ export class UserController {
 
       if (user) {
         const payload = {
+          _id: user._id,
           username: user.username,
-          sub: user._id,
           role: user.role,
         };
         const token = this.jwtService.sign(payload);
@@ -91,10 +93,14 @@ export class UserController {
   @Roles(UserRole.Client)
   @UseGuards(RolesGuard)
   @Get('profile')
-  async getProfile() {
+  async getProfile(@Req() req: AuthenticatedRequest) {
     try {
-      // 유저 정보 요청 작성
-      return 'User profile information';
+      const userId = req.user?._id;
+      if (!userId) {
+        throw new UnauthorizedException('Invalid user');
+      }
+      const user = await this.userService.findUserById(userId);
+      return user;
     } catch (error) {
       throw new InternalServerErrorException('Failed to get profile');
     }

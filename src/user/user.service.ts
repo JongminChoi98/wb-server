@@ -53,4 +53,12 @@ export class UserService {
       throw new InternalServerErrorException('User validation failed');
     }
   }
+
+  async findUserById(userId: string): Promise<User | undefined> {
+    try {
+      return await this.userModel.findById(userId).exec();
+    } catch (error) {
+      throw new InternalServerErrorException('Failed to find user by ID');
+    }
+  }
 }
