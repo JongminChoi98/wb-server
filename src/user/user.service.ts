@@ -4,6 +4,7 @@ import * as bcrypt from 'bcrypt';
 import { Model } from 'mongoose';
 import { User } from '../schema/user.schema';
 import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UserService {
@@ -67,6 +68,26 @@ export class UserService {
       return await this.userModel.findById(userId).exec();
     } catch (error) {
       throw new InternalServerErrorException('Failed to find user by ID');
+    }
+  }
+
+  async updateUser(
+    userId: string,
+    updateUserDto: UpdateUserDto,
+  ): Promise<User> {
+    try {
+      if (updateUserDto.password) {
+        const saltRounds = 10;
+        updateUserDto.password = await bcrypt.hash(
+          updateUserDto.password,
+          saltRounds,
+        );
+      }
+      return await this.userModel
+        .findByIdAndUpdate(userId, updateUserDto, { new: true })
+        .exec();
+    } catch (error) {
+      throw new InternalServerErrorException('Failed to update user');
     }
   }
 }

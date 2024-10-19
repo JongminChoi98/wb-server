@@ -4,6 +4,7 @@ import {
   Get,
   InternalServerErrorException,
   Post,
+  Put,
   Req,
   Res,
   UnauthorizedException,
@@ -17,6 +18,7 @@ import { AuthenticatedRequest } from 'src/interfaces/authenticated-request.inter
 import { RolesGuard } from './roles.guard';
 import { Roles, UserRole } from './decorator/roles.decorator';
 import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 import { UserService } from './user.service';
 
 @Controller('users')
@@ -50,6 +52,7 @@ export class UserController {
   @Roles(UserRole.Any)
   @UseGuards(RolesGuard)
   @Post('login')
+  @UsePipes(new ValidationPipe())
   async login(@Body() loginUserDto: CreateUserDto, @Res() res: Response) {
     try {
       const user = await this.userService.validateUser(
@@ -103,6 +106,55 @@ export class UserController {
       return user;
     } catch (error) {
       throw new InternalServerErrorException('Failed to get profile');
+    }
+  }
+
+  @Roles(UserRole.Client)
+  @UseGuards(RolesGuard)
+  @Put('edit')
+  @UsePipes(new ValidationPipe())
+  async editUser(
+    @Body() updateUserDto: UpdateUserDto,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    try {
+      const userId = req.user?._id;
+      if (!userId) {
+        throw new UnauthorizedException('Invalid user');
+      }
+
+      if (updateUserDto.email) {
+        const existingUserByEmail = await this.userService.findUserByEmail(
+          updateUserDto.email,
+        );
+        if (
+          existingUserByEmail &&
+          existingUserByEmail._id.toString() !== userId
+        ) {
+          throw new InternalServerErrorException('Email already exists');
+        }
+      }
+
+      if (updateUserDto.username) {
+        const existingUserByUsername =
+          await this.userService.findUserByUsername(updateUserDto.username);
+        if (
+          existingUserByUsername &&
+          existingUserByUsername._id.toString() !== userId
+        ) {
+          throw new InternalServerErrorException('Username already exists');
+        }
+      }
+
+      return await this.userService.updateUser(userId, updateUserDto);
+    } catch (error) {
+      if (
+        error.message === 'Email already exists' ||
+        error.message === 'Username already exists'
+      ) {
+        throw error;
+      }
+      throw new InternalServerErrorException('User update failed');
     }
   }
 }
