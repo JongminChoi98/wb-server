@@ -18,6 +18,7 @@ import { AuthenticatedRequest } from 'src/interfaces/authenticated-request.inter
 import { RolesGuard } from './roles.guard';
 import { Roles, UserRole } from './decorator/roles.decorator';
 import { CreateUserDto } from './dto/create-user.dto';
+import { LoginUserDto } from './dto/login-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserService } from './user.service';
 
@@ -53,7 +54,7 @@ export class UserController {
   @UseGuards(RolesGuard)
   @Post('login')
   @UsePipes(new ValidationPipe())
-  async login(@Body() loginUserDto: CreateUserDto, @Res() res: Response) {
+  async login(@Body() loginUserDto: LoginUserDto, @Res() res: Response) {
     try {
       const user = await this.userService.validateUser(
         loginUserDto.email,
