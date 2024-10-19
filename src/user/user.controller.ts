@@ -53,7 +53,7 @@ export class UserController {
   async login(@Body() loginUserDto: CreateUserDto, @Res() res: Response) {
     try {
       const user = await this.userService.validateUser(
-        loginUserDto.username,
+        loginUserDto.email,
         loginUserDto.password,
       );
 

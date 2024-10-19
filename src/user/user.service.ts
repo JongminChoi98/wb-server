@@ -26,6 +26,14 @@ export class UserService {
     }
   }
 
+  async findUserByEmail(email: string): Promise<User | undefined> {
+    try {
+      return await this.userModel.findOne({ email }).exec();
+    } catch (error) {
+      throw new InternalServerErrorException('Failed to find user by email');
+    }
+  }
+
   async findUserByUsername(username: string): Promise<User | undefined> {
     try {
       return await this.userModel.findOne({ username }).exec();
@@ -42,9 +50,9 @@ export class UserService {
     }
   }
 
-  async validateUser(username: string, password: string): Promise<User | null> {
+  async validateUser(email: string, password: string): Promise<User | null> {
     try {
-      const user = await this.findUserByUsername(username);
+      const user = await this.findUserByEmail(email);
       if (user && (await bcrypt.compare(password, user.password))) {
         return user;
       }
