@@ -36,15 +36,15 @@ export class UserController {
   @UsePipes(new ValidationPipe())
   async register(@Body() createUserDto: CreateUserDto) {
     try {
-      const existingUser = await this.userService.findUserByUsername(
-        createUserDto.username,
+      const existingUser = await this.userService.findUserByEmail(
+        createUserDto.email,
       );
       if (existingUser) {
-        throw new InternalServerErrorException('Username already exists');
+        throw new InternalServerErrorException('Email already exists');
       }
       return await this.userService.createUser(createUserDto);
     } catch (error) {
-      if (error.message === 'Username already exists') {
+      if (error.message === 'Email already exists') {
         throw new InternalServerErrorException(error.message);
       }
       throw new InternalServerErrorException('User registration failed');
@@ -170,8 +170,8 @@ export class UserController {
         throw new UnauthorizedException('Invalid user');
       }
 
-      await this.userService.deleteUser(userId);
-      return { message: 'User deleted successfully' };
+      await this.userService.softDeleteUser(userId);
+      return { message: 'User soft deleted successfully' };
     } catch (error) {
       throw new InternalServerErrorException(
         'User deletion failed: ' + error.message,

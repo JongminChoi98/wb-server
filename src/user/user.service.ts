@@ -2,6 +2,7 @@ import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import * as bcrypt from 'bcrypt';
 import { Model } from 'mongoose';
+import { v4 as uuidv4 } from 'uuid';
 import { User } from '../schema/user.schema';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -29,7 +30,7 @@ export class UserService {
 
   async findUserByEmail(email: string): Promise<User | undefined> {
     try {
-      return await this.userModel.findOne({ email }).exec();
+      return await this.userModel.findOne({ email, isDeleted: false }).exec();
     } catch (error) {
       throw new InternalServerErrorException('Failed to find user by email');
     }
@@ -37,13 +38,15 @@ export class UserService {
 
   async findUserByUsername(username: string): Promise<User | undefined> {
     try {
-      return await this.userModel.findOne({ username }).exec();
+      return await this.userModel
+        .findOne({ username, isDeleted: false })
+        .exec();
     } catch (error) {
       throw new InternalServerErrorException('Failed to find user by username');
     }
   }
 
-  async getAllUsers(): Promise<User[]> {
+  async getAllUsersIncludeDelete(): Promise<User[]> {
     try {
       return await this.userModel.find().exec();
     } catch (error) {
@@ -65,7 +68,9 @@ export class UserService {
 
   async findUserById(userId: string): Promise<User | undefined> {
     try {
-      return await this.userModel.findById(userId).exec();
+      return await this.userModel
+        .findOne({ _id: userId, isDeleted: false })
+        .exec();
     } catch (error) {
       throw new InternalServerErrorException('Failed to find user by ID');
     }
@@ -91,7 +96,18 @@ export class UserService {
     }
   }
 
-  async deleteUser(userId: string): Promise<void> {
+  async softDeleteUser(userId: string): Promise<void> {
+    try {
+      const randomEmail = `deleted_${uuidv4()}@wb-deleted.com`;
+      await this.userModel
+        .findByIdAndUpdate(userId, { isDeleted: true, email: randomEmail })
+        .exec();
+    } catch (error) {
+      throw new InternalServerErrorException('Failed to delete user');
+    }
+  }
+
+  async hardDeleteUser(userId: string): Promise<void> {
     try {
       await this.userModel.findByIdAndDelete(userId).exec();
     } catch (error) {

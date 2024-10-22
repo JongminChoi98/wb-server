@@ -7,7 +7,7 @@ export class User extends Document {
   @Prop({ required: true, unique: true })
   email: string;
 
-  @Prop({ required: true, unique: true })
+  @Prop({ required: true })
   username: string;
 
   @Prop({ required: true })
@@ -15,6 +15,9 @@ export class User extends Document {
 
   @Prop({ required: true, enum: UserRole })
   role: UserRole;
+
+  @Prop({ default: false })
+  isDeleted: boolean;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
