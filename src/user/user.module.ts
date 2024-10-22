@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { MongooseModule } from '@nestjs/mongoose';
+import { RolesGuard } from '../guards/roles.guard';
 import { User, UserSchema } from '../schema/user.schema';
-import { RolesGuard } from './roles.guard';
 import { UserController } from './user.controller';
 import { UserService } from './user.service';
 

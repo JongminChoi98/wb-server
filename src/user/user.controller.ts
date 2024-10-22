@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   InternalServerErrorException,
   Post,
@@ -15,7 +16,7 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { Response } from 'express';
 import { AuthenticatedRequest } from 'src/interfaces/authenticated-request.interface';
-import { RolesGuard } from './roles.guard';
+import { RolesGuard } from '../guards/roles.guard';
 import { Roles, UserRole } from './decorator/roles.decorator';
 import { CreateUserDto } from './dto/create-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
@@ -156,6 +157,25 @@ export class UserController {
         throw error;
       }
       throw new InternalServerErrorException('User update failed');
+    }
+  }
+
+  @Roles(UserRole.Client)
+  @UseGuards(RolesGuard)
+  @Delete('delete')
+  async deleteUser(@Req() req: AuthenticatedRequest) {
+    try {
+      const userId = req.user?._id;
+      if (!userId) {
+        throw new UnauthorizedException('Invalid user');
+      }
+
+      await this.userService.deleteUser(userId);
+      return { message: 'User deleted successfully' };
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'User deletion failed: ' + error.message,
+      );
     }
   }
 }

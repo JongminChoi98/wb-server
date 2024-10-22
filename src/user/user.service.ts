@@ -90,4 +90,12 @@ export class UserService {
       throw new InternalServerErrorException('Failed to update user');
     }
   }
+
+  async deleteUser(userId: string): Promise<void> {
+    try {
+      await this.userModel.findByIdAndDelete(userId).exec();
+    } catch (error) {
+      throw new InternalServerErrorException('Failed to delete user');
+    }
+  }
 }

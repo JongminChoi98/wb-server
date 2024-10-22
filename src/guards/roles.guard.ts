@@ -8,7 +8,7 @@ import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
 import { AuthenticatedRequest } from 'src/interfaces/authenticated-request.interface';
-import { ROLES_KEY, UserRole } from './decorator/roles.decorator';
+import { ROLES_KEY, UserRole } from '../user/decorator/roles.decorator';
 
 @Injectable()
 export class RolesGuard implements CanActivate {
