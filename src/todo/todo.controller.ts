@@ -1,7 +1,9 @@
 import {
   Body,
   Controller,
+  Get,
   InternalServerErrorException,
+  Param,
   Post,
   Req,
   UnauthorizedException,
@@ -42,6 +44,40 @@ export class TodoController {
     } catch (error) {
       throw new InternalServerErrorException(
         'Todo creation failed: ' + error.message,
+      );
+    }
+  }
+
+  @Roles(UserRole.Client)
+  @UseGuards(RolesGuard)
+  @Get()
+  async getAllTodos(@Req() req: AuthenticatedRequest) {
+    try {
+      const userId = req.user?._id;
+      if (!userId) {
+        throw new UnauthorizedException('Invalid user');
+      }
+      return await this.todoService.findAllTodosByUser(userId);
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Failed to get todos: ' + error.message,
+      );
+    }
+  }
+
+  @Roles(UserRole.Client)
+  @UseGuards(RolesGuard)
+  @Get(':id')
+  async getTodoById(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
+    try {
+      const userId = req.user?._id;
+      if (!userId) {
+        throw new UnauthorizedException('Invalid user');
+      }
+      return await this.todoService.findTodoById(userId, id);
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Failed to get todo: ' + error.message,
       );
     }
   }
