@@ -45,4 +45,17 @@ export class TodoService {
       throw new InternalServerErrorException('Failed to get todo');
     }
   }
+
+  async deleteTodoById(userId: string, todoId: string): Promise<void> {
+    try {
+      const result = await this.todoModel
+        .deleteOne({ _id: todoId, user: userId })
+        .exec();
+      if (result.deletedCount === 0) {
+        throw new NotFoundException('Todo not found');
+      }
+    } catch (error) {
+      throw new InternalServerErrorException('Failed to delete todo');
+    }
+  }
 }

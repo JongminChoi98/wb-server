@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   InternalServerErrorException,
   Param,
@@ -78,6 +79,27 @@ export class TodoController {
     } catch (error) {
       throw new InternalServerErrorException(
         'Failed to get todo: ' + error.message,
+      );
+    }
+  }
+
+  @Roles(UserRole.Client)
+  @UseGuards(RolesGuard)
+  @Delete(':id')
+  async deleteTodoById(
+    @Param('id') id: string,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    try {
+      const userId = req.user?._id;
+      if (!userId) {
+        throw new UnauthorizedException('Invalid user');
+      }
+      await this.todoService.deleteTodoById(userId, id);
+      return { message: 'Todo deleted successfully' };
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Failed to delete todo: ' + error.message,
       );
     }
   }
