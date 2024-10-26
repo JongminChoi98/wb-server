@@ -1,4 +1,4 @@
-import { IsEmail, IsNotEmpty, IsOptional } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class UpdateUserDto {
   @IsOptional()
@@ -12,4 +12,8 @@ export class UpdateUserDto {
   @IsOptional()
   @IsNotEmpty({ message: 'Password should not be empty' })
   password?: string;
+
+  @IsOptional()
+  @IsString({ message: 'Profile image URL must be a string' })
+  profileImageUrl?: string;
 }

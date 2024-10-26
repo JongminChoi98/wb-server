@@ -28,6 +28,19 @@ export class UserService {
     }
   }
 
+  async updateProfileImage(
+    userId: string,
+    profileImageUrl: string,
+  ): Promise<User> {
+    try {
+      return await this.userModel
+        .findByIdAndUpdate(userId, { profileImageUrl }, { new: true })
+        .exec();
+    } catch (error) {
+      throw new InternalServerErrorException('Failed to update profile image');
+    }
+  }
+
   async findUserByEmail(email: string): Promise<User | undefined> {
     try {
       return await this.userModel.findOne({ email, isDeleted: false }).exec();

@@ -18,6 +18,9 @@ export class User extends Document {
 
   @Prop({ default: false })
   isDeleted: boolean;
+
+  @Prop({ type: String, required: false, default: null })
+  profileImageUrl?: string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

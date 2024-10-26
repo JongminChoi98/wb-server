@@ -178,4 +178,25 @@ export class UserController {
       );
     }
   }
+
+  @Roles(UserRole.Client)
+  @UseGuards(RolesGuard)
+  @Put('profile-image')
+  @UsePipes(new ValidationPipe())
+  async updateProfileImage(
+    @Body('profileImageUrl') profileImageUrl: string,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    try {
+      const userId = req.user?._id;
+      if (!userId) {
+        throw new UnauthorizedException('Invalid user');
+      }
+      return await this.userService.updateProfileImage(userId, profileImageUrl);
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Failed to update profile image: ' + error.message,
+      );
+    }
+  }
 }
