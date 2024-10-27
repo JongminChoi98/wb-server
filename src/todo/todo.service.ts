@@ -7,6 +7,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Todo } from '../schema/todo.schema';
 import { CreateTodoDto } from './dto/create-todo.dto';
+import { UpdateTodoDto } from './dto/update-todo.dto';
 
 @Injectable()
 export class TodoService {
@@ -56,6 +57,26 @@ export class TodoService {
       }
     } catch (error) {
       throw new InternalServerErrorException('Failed to delete todo');
+    }
+  }
+
+  async updateTodoById(
+    userId: string,
+    todoId: string,
+    updateTodoDto: UpdateTodoDto,
+  ): Promise<Todo> {
+    try {
+      const updatedTodo = await this.todoModel
+        .findOneAndUpdate({ _id: todoId, user: userId }, updateTodoDto, {
+          new: true,
+        })
+        .exec();
+      if (!updatedTodo) {
+        throw new NotFoundException('Todo not found');
+      }
+      return updatedTodo;
+    } catch (error) {
+      throw new InternalServerErrorException('Failed to update todo');
     }
   }
 }
