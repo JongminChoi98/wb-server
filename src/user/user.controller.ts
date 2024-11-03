@@ -11,7 +11,6 @@ import {
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
 import { AuthenticatedRequest } from 'src/interfaces/authenticated-request.interface';
 import { RolesGuard } from '../guards/roles.guard';
 import { Roles, UserRole } from './decorator/roles.decorator';
@@ -20,10 +19,7 @@ import { UserService } from './user.service';
 
 @Controller('users')
 export class UserController {
-  constructor(
-    private readonly userService: UserService,
-    private readonly jwtService: JwtService,
-  ) {}
+  constructor(private readonly userService: UserService) {}
 
   @Roles(UserRole.Client)
   @UseGuards(RolesGuard)

@@ -11,11 +11,11 @@ import { UserService } from './user.service';
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
     JwtModule.register({
       secret: process.env.JWT_SECRET || 'secretKey',
-      signOptions: { expiresIn: '1h' },
+      signOptions: { expiresIn: '1d' },
     }),
   ],
   providers: [UserService, RolesGuard],
   controllers: [UserController],
-  exports: [UserService, JwtModule],
+  exports: [UserService],
 })
 export class UserModule {}

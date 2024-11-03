@@ -49,18 +49,6 @@ export class UserService {
     }
   }
 
-  async validateUser(email: string, password: string): Promise<User | null> {
-    try {
-      const user = await this.findUserByEmail(email);
-      if (user && (await bcrypt.compare(password, user.password))) {
-        return user;
-      }
-      return null;
-    } catch (error) {
-      throw new InternalServerErrorException('User validation failed');
-    }
-  }
-
   async findUserById(userId: string): Promise<User | undefined> {
     try {
       return await this.userModel

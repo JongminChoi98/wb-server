@@ -1,14 +1,17 @@
 import {
   Body,
   Controller,
+  Get,
   InternalServerErrorException,
   Post,
+  Req,
   Res,
   UnauthorizedException,
   UseGuards,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import { Response } from 'express';
 import { UserService } from 'src/user/user.service';
 import { RolesGuard } from '../guards/roles.guard';
@@ -67,5 +70,19 @@ export class AuthController {
     } catch (error) {
       throw new InternalServerErrorException('Logout failed');
     }
+  }
+
+  @Roles(UserRole.Any)
+  @Get('google')
+  @UseGuards(AuthGuard('google'))
+  async googleLogin() {}
+
+  @Roles(UserRole.Any)
+  @Get('google/redirect')
+  @UseGuards(AuthGuard('google'))
+  async googleLoginRedirect(@Req() req, @Res() res: Response) {
+    const token = await this.authService.googleLogin(req.user);
+    res.cookie('access_token', token, { httpOnly: true });
+    return res.send({ access_token: token });
   }
 }

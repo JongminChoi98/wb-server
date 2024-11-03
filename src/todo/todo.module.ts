@@ -10,7 +10,7 @@ import { TodoService } from './todo.service';
     MongooseModule.forFeature([{ name: Todo.name, schema: TodoSchema }]),
     JwtModule.register({
       secret: process.env.JWT_SECRET || 'secretKey',
-      signOptions: { expiresIn: '1h' },
+      signOptions: { expiresIn: '1d' },
     }),
   ],
   providers: [TodoService],
