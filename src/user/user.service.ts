@@ -4,29 +4,11 @@ import * as bcrypt from 'bcrypt';
 import { Model } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
 import { User } from '../schema/user.schema';
-import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UserService {
   constructor(@InjectModel(User.name) private userModel: Model<User>) {}
-
-  async createUser(createUserDto: CreateUserDto): Promise<User> {
-    try {
-      const saltRounds = 10;
-      const hashedPassword = await bcrypt.hash(
-        createUserDto.password,
-        saltRounds,
-      );
-      const newUser = new this.userModel({
-        ...createUserDto,
-        password: hashedPassword,
-      });
-      return await newUser.save();
-    } catch (error) {
-      throw new InternalServerErrorException('Failed to create user');
-    }
-  }
 
   async updateProfileImage(
     userId: string,
