@@ -12,6 +12,12 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import {
+  ApiExcludeEndpoint,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { Response } from 'express';
 import { UserService } from 'src/user/user.service';
 import { RolesGuard } from '../guards/roles.guard';
@@ -19,6 +25,7 @@ import { Roles, UserRole } from '../user/decorator/roles.decorator';
 import { CreateUserDto } from '../user/dto/create-user.dto';
 import { AuthService } from './auth.service';
 import { LoginUserDto } from './dto/login-user.dto';
+@ApiTags('Auth')
 @Controller('auth')
 @UseGuards(RolesGuard)
 export class AuthController {
@@ -27,6 +34,7 @@ export class AuthController {
     private readonly userService: UserService,
   ) {}
 
+  @ApiExcludeEndpoint()
   @Roles(UserRole.Any)
   @Post('register')
   @UsePipes(new ValidationPipe())
@@ -47,6 +55,9 @@ export class AuthController {
     }
   }
 
+  @ApiOperation({ summary: 'User login' })
+  @ApiResponse({ status: 200, description: 'User logged in successfully.' })
+  @ApiResponse({ status: 401, description: 'Invalid credentials.' })
   @Roles(UserRole.Any)
   @Post('login')
   @UsePipes(new ValidationPipe())
@@ -60,6 +71,7 @@ export class AuthController {
     }
   }
 
+  @ApiExcludeEndpoint()
   @Roles(UserRole.Client)
   @UseGuards(RolesGuard)
   @Post('logout')
@@ -72,11 +84,13 @@ export class AuthController {
     }
   }
 
+  @ApiExcludeEndpoint()
   @Roles(UserRole.Any)
   @Get('google')
   @UseGuards(AuthGuard('google'))
   async googleLogin() {}
 
+  @ApiExcludeEndpoint()
   @Roles(UserRole.Any)
   @Get('google/redirect')
   @UseGuards(AuthGuard('google'))

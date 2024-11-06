@@ -1,11 +1,19 @@
 import { Controller, Get } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Connection } from 'mongoose';
 
+@ApiTags('Server Health')
 @Controller('server-health')
 export class ServerHealthController {
   constructor(@InjectConnection() private readonly connection: Connection) {}
 
+  @ApiOperation({ summary: 'Check server health status' })
+  @ApiResponse({
+    status: 200,
+    description: 'Server health status retrieved successfully.',
+  })
+  @ApiResponse({ status: 500, description: 'Internal server error.' })
   @Get()
   async checkHealth(): Promise<object> {
     const getDatabaseStatus = (state: number): string => {

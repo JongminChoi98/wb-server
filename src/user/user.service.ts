@@ -17,6 +17,7 @@ export class UserService {
     try {
       return await this.userModel
         .findByIdAndUpdate(userId, { profileImageUrl }, { new: true })
+        .select('email username profileImageUrl')
         .exec();
     } catch (error) {
       throw new InternalServerErrorException('Failed to update profile image');
@@ -25,7 +26,10 @@ export class UserService {
 
   async findUserByEmail(email: string): Promise<User | undefined> {
     try {
-      return await this.userModel.findOne({ email, isDeleted: false }).exec();
+      return await this.userModel
+        .findOne({ email, isDeleted: false })
+        .select('email username profileImageUrl')
+        .exec();
     } catch (error) {
       throw new InternalServerErrorException('Failed to find user by email');
     }
@@ -35,6 +39,7 @@ export class UserService {
     try {
       return await this.userModel
         .findOne({ username, isDeleted: false })
+        .select('email username profileImageUrl')
         .exec();
     } catch (error) {
       throw new InternalServerErrorException('Failed to find user by username');
@@ -43,7 +48,10 @@ export class UserService {
 
   async getAllUsersIncludeDelete(): Promise<User[]> {
     try {
-      return await this.userModel.find().exec();
+      return await this.userModel
+        .find()
+        .select('email username profileImageUrl')
+        .exec();
     } catch (error) {
       throw new InternalServerErrorException('Failed to get all users');
     }
@@ -53,6 +61,7 @@ export class UserService {
     try {
       return await this.userModel
         .findOne({ _id: userId, isDeleted: false })
+        .select('email username profileImageUrl')
         .exec();
     } catch (error) {
       throw new InternalServerErrorException('Failed to find user by ID');
@@ -73,6 +82,7 @@ export class UserService {
       }
       return await this.userModel
         .findByIdAndUpdate(userId, updateUserDto, { new: true })
+        .select('email username profileImageUrl')
         .exec();
     } catch (error) {
       throw new InternalServerErrorException('Failed to update user');
@@ -84,6 +94,7 @@ export class UserService {
       const randomEmail = `deleted_${uuidv4()}@wb-deleted.com`;
       await this.userModel
         .findByIdAndUpdate(userId, { isDeleted: true, email: randomEmail })
+        .select('email username profileImageUrl')
         .exec();
     } catch (error) {
       throw new InternalServerErrorException('Failed to delete user');
