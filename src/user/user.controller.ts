@@ -11,16 +11,31 @@ import {
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
+import {
+  ApiBearerAuth,
+  ApiExcludeEndpoint,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { AuthenticatedRequest } from 'src/interfaces/authenticated-request.interface';
 import { RolesGuard } from '../guards/roles.guard';
 import { Roles, UserRole } from './decorator/roles.decorator';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserService } from './user.service';
 
+@ApiTags('Users')
+@ApiBearerAuth()
 @Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
+  @ApiOperation({ summary: 'Get user profile' })
+  @ApiResponse({
+    status: 200,
+    description: 'User profile retrieved successfully',
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
   @Roles(UserRole.Client)
   @UseGuards(RolesGuard)
   @Get('profile')
@@ -37,6 +52,12 @@ export class UserController {
     }
   }
 
+  @ApiOperation({ summary: 'Edit user profile' })
+  @ApiResponse({
+    status: 200,
+    description: 'User profile updated successfully',
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
   @Roles(UserRole.Client)
   @UseGuards(RolesGuard)
   @Put('edit')
@@ -86,6 +107,10 @@ export class UserController {
     }
   }
 
+  @ApiExcludeEndpoint()
+  @ApiOperation({ summary: 'Delete user profile' })
+  @ApiResponse({ status: 200, description: 'User soft deleted successfully' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
   @Roles(UserRole.Client)
   @UseGuards(RolesGuard)
   @Delete('delete')
@@ -105,6 +130,12 @@ export class UserController {
     }
   }
 
+  @ApiOperation({ summary: 'Update profile image' })
+  @ApiResponse({
+    status: 200,
+    description: 'Profile image updated successfully',
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
   @Roles(UserRole.Client)
   @UseGuards(RolesGuard)
   @Put('profile-image')

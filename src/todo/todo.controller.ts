@@ -13,6 +13,13 @@ import {
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { AuthenticatedRequest } from 'src/interfaces/authenticated-request.interface';
 import { RolesGuard } from '../guards/roles.guard';
 import { Roles, UserRole } from '../user/decorator/roles.decorator';
@@ -20,10 +27,16 @@ import { CreateTodoDto } from './dto/create-todo.dto';
 import { UpdateTodoDto } from './dto/update-todo.dto';
 import { TodoService } from './todo.service';
 
+@ApiTags('Todos')
+@ApiBearerAuth()
 @Controller('todos')
 export class TodoController {
   constructor(private readonly todoService: TodoService) {}
 
+  @ApiOperation({ summary: 'Create a new todo' })
+  @ApiResponse({ status: 201, description: 'Todo created successfully.' })
+  @ApiResponse({ status: 500, description: 'Internal server error.' })
+  @ApiBody({ type: CreateTodoDto })
   @Roles(UserRole.Client)
   @UseGuards(RolesGuard)
   @Post()
@@ -51,6 +64,9 @@ export class TodoController {
     }
   }
 
+  @ApiOperation({ summary: 'Get all todos for the authenticated user' })
+  @ApiResponse({ status: 200, description: 'Todos retrieved successfully.' })
+  @ApiResponse({ status: 500, description: 'Internal server error.' })
   @Roles(UserRole.Client)
   @UseGuards(RolesGuard)
   @Get()
@@ -68,6 +84,10 @@ export class TodoController {
     }
   }
 
+  @ApiOperation({ summary: 'Get a specific todo by ID' })
+  @ApiResponse({ status: 200, description: 'Todo retrieved successfully.' })
+  @ApiResponse({ status: 404, description: 'Todo not found.' })
+  @ApiResponse({ status: 500, description: 'Internal server error.' })
   @Roles(UserRole.Client)
   @UseGuards(RolesGuard)
   @Get(':id')
@@ -85,6 +105,10 @@ export class TodoController {
     }
   }
 
+  @ApiOperation({ summary: 'Delete a specific todo by ID' })
+  @ApiResponse({ status: 200, description: 'Todo deleted successfully.' })
+  @ApiResponse({ status: 404, description: 'Todo not found.' })
+  @ApiResponse({ status: 500, description: 'Internal server error.' })
   @Roles(UserRole.Client)
   @UseGuards(RolesGuard)
   @Delete(':id')
@@ -106,6 +130,11 @@ export class TodoController {
     }
   }
 
+  @ApiOperation({ summary: 'Update a specific todo by ID' })
+  @ApiResponse({ status: 200, description: 'Todo updated successfully.' })
+  @ApiResponse({ status: 404, description: 'Todo not found.' })
+  @ApiResponse({ status: 500, description: 'Internal server error.' })
+  @ApiBody({ type: UpdateTodoDto })
   @Roles(UserRole.Client)
   @UseGuards(RolesGuard)
   @Put(':id')
