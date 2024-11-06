@@ -13,6 +13,7 @@ import {
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
+  ApiBody,
   ApiExcludeEndpoint,
   ApiOperation,
   ApiResponse,
@@ -136,6 +137,18 @@ export class UserController {
     description: 'Profile image updated successfully',
   })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        profileImageUrl: {
+          type: 'string',
+          description: 'URL of the profile image',
+          example: 'https://example.com/profile.jpg',
+        },
+      },
+    },
+  })
   @Roles(UserRole.Client)
   @UseGuards(RolesGuard)
   @Put('profile-image')
