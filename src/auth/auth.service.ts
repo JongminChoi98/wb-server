@@ -67,6 +67,7 @@ export class AuthService {
         username: user.username,
         role: user.role,
       };
+
       return this.jwtService.sign(payload);
     } else {
       throw new UnauthorizedException('Invalid credentials');

@@ -35,7 +35,6 @@ export class AuthController {
   ) {}
 
   @ApiExcludeEndpoint()
-  @Roles(UserRole.Any)
   @Post('register')
   @UsePipes(new ValidationPipe())
   async register(@Body() createUserDto: CreateUserDto) {
@@ -58,15 +57,16 @@ export class AuthController {
   @ApiOperation({ summary: 'User login' })
   @ApiResponse({ status: 200, description: 'User logged in successfully.' })
   @ApiResponse({ status: 401, description: 'Invalid credentials.' })
-  @Roles(UserRole.Any)
   @Post('login')
   @UsePipes(new ValidationPipe())
   async login(@Body() loginUserDto: LoginUserDto, @Res() res: Response) {
-    const token = await this.authService.login(loginUserDto);
-    if (token) {
-      res.cookie('access_token', token, { httpOnly: true });
-      return res.send({ access_token: token });
-    } else {
+    try {
+      const token = await this.authService.login(loginUserDto);
+      if (token) {
+        res.cookie('access_token', token, { httpOnly: true });
+        return res.send({ access_token: token });
+      }
+    } catch (error) {
       throw new UnauthorizedException('Invalid credentials');
     }
   }
