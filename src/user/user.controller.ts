@@ -49,7 +49,9 @@ export class UserController {
       const user = await this.userService.findUserById(userId);
       return user;
     } catch (error) {
-      throw new InternalServerErrorException('Failed to get profile');
+      throw new InternalServerErrorException(
+        'Failed to get profile: ' + error.message,
+      );
     }
   }
 
@@ -104,7 +106,9 @@ export class UserController {
       ) {
         throw error;
       }
-      throw new InternalServerErrorException('User update failed');
+      throw new InternalServerErrorException(
+        'User update failed: ' + error.message,
+      );
     }
   }
 

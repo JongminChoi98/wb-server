@@ -75,36 +75,40 @@ export class AuthService {
   }
 
   async googleLogin(user: any): Promise<string> {
-    let existingUser = await this.userService.findUserByEmail(user.email);
+    try {
+      let existingUser = await this.userService.findUserByEmail(user.email);
 
-    if (!existingUser) {
-      const createUserDto: CreateUserDto = {
-        email: user.email,
-        username: user.username,
-        password: '',
-        role: 'Client',
-      };
+      if (!existingUser) {
+        const createUserDto: CreateUserDto = {
+          email: user.email,
+          username: user.username,
+          password: '',
+          role: 'Client',
+        };
 
-      try {
-        existingUser = await this.register(createUserDto);
-      } catch (error) {
+        try {
+          existingUser = await this.register(createUserDto);
+        } catch (error) {
+          throw new InternalServerErrorException(
+            'Failed to create user during Google login',
+          );
+        }
+      }
+
+      if (!existingUser) {
         throw new InternalServerErrorException(
-          'Failed to create user during Google login',
+          'User could not be created or found',
         );
       }
-    }
 
-    if (!existingUser) {
-      throw new InternalServerErrorException(
-        'User could not be created or found',
-      );
+      const payload = {
+        _id: existingUser._id,
+        username: existingUser.username,
+        role: existingUser.role,
+      };
+      return this.jwtService.sign(payload);
+    } catch (error) {
+      throw error;
     }
-
-    const payload = {
-      _id: existingUser._id,
-      username: existingUser.username,
-      role: existingUser.role,
-    };
-    return this.jwtService.sign(payload);
   }
 }

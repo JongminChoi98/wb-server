@@ -50,7 +50,9 @@ export class AuthController {
       if (error.message === 'Email already exists') {
         throw new InternalServerErrorException(error.message);
       }
-      throw new InternalServerErrorException('User registration failed');
+      throw new InternalServerErrorException(
+        'User registration failed: ' + error.message,
+      );
     }
   }
 
@@ -67,7 +69,7 @@ export class AuthController {
         return res.send({ access_token: token });
       }
     } catch (error) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new UnauthorizedException('Login failed: ' + error.message);
     }
   }
 
@@ -80,7 +82,7 @@ export class AuthController {
       res.clearCookie('access_token');
       return res.send({ message: 'Logged out successfully' });
     } catch (error) {
-      throw new InternalServerErrorException('Logout failed');
+      throw new InternalServerErrorException('Logout failed: ' + error.message);
     }
   }
 
@@ -95,8 +97,14 @@ export class AuthController {
   @Get('google/redirect')
   @UseGuards(AuthGuard('google'))
   async googleLoginRedirect(@Req() req, @Res() res: Response) {
-    const token = await this.authService.googleLogin(req.user);
-    res.cookie('access_token', token, { httpOnly: true });
-    return res.send({ access_token: token });
+    try {
+      const token = await this.authService.googleLogin(req.user);
+      res.cookie('access_token', token, { httpOnly: true });
+      return res.send({ access_token: token });
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Faild to redirect: ' + error.message,
+      );
+    }
   }
 }
