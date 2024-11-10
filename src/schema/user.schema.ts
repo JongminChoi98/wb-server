@@ -21,6 +21,9 @@ export class User extends Document {
 
   @Prop({ type: String, required: false, default: null })
   profileImageUrl?: string;
+
+  @Prop({ type: String, required: false, default: null })
+  refreshToken?: string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

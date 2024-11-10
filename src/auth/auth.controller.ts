@@ -63,10 +63,15 @@ export class AuthController {
   @UsePipes(new ValidationPipe())
   async login(@Body() loginUserDto: LoginUserDto, @Res() res: Response) {
     try {
-      const token = await this.authService.login(loginUserDto);
-      if (token) {
-        res.cookie('access_token', token, { httpOnly: true });
-        return res.send({ access_token: token });
+      const { accessToken, refreshToken } =
+        await this.authService.login(loginUserDto);
+      if (accessToken && refreshToken) {
+        res.cookie('access_token', accessToken, { httpOnly: true });
+        res.cookie('refresh_token', refreshToken, { httpOnly: true });
+        return res.send({
+          access_token: accessToken,
+          refresh_token: refreshToken,
+        });
       }
     } catch (error) {
       throw new UnauthorizedException('Login failed: ' + error.message);
@@ -80,6 +85,7 @@ export class AuthController {
   async logout(@Res() res: Response) {
     try {
       res.clearCookie('access_token');
+      res.clearCookie('refresh_token');
       return res.send({ message: 'Logged out successfully' });
     } catch (error) {
       throw new InternalServerErrorException('Logout failed: ' + error.message);
@@ -98,13 +104,34 @@ export class AuthController {
   @UseGuards(AuthGuard('google'))
   async googleLoginRedirect(@Req() req, @Res() res: Response) {
     try {
-      const token = await this.authService.googleLogin(req.user);
-      res.cookie('access_token', token, { httpOnly: true });
-      return res.send({ access_token: token });
+      const { accessToken, refreshToken } = await this.authService.googleLogin(
+        req.user,
+      );
+      res.cookie('access_token', accessToken, { httpOnly: true });
+      res.cookie('refresh_token', refreshToken, { httpOnly: true });
+      return res.send({
+        access_token: accessToken,
+        refresh_token: refreshToken,
+      });
     } catch (error) {
       throw new InternalServerErrorException(
         'Faild to redirect: ' + error.message,
       );
+    }
+  }
+
+  @Post('refresh')
+  async refresh(
+    @Body('refreshToken') refreshToken: string,
+    @Res() res: Response,
+  ) {
+    try {
+      const newAccessToken =
+        await this.authService.refreshAccessToken(refreshToken);
+      res.cookie('access_token', newAccessToken, { httpOnly: true });
+      return res.send({ access_token: newAccessToken });
+    } catch (error) {
+      throw new UnauthorizedException('Invalid or expired refresh token');
     }
   }
 }

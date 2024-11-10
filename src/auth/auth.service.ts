@@ -55,7 +55,9 @@ export class AuthService {
     }
   }
 
-  async login(loginUserDto: LoginUserDto): Promise<string | null> {
+  async login(
+    loginUserDto: LoginUserDto,
+  ): Promise<{ accessToken: string; refreshToken: string }> {
     const user = await this.validateUser(
       loginUserDto.email,
       loginUserDto.password,
@@ -68,13 +70,21 @@ export class AuthService {
         role: user.role,
       };
 
-      return this.jwtService.sign(payload);
+      const accessToken = this.jwtService.sign(payload, { expiresIn: '15m' });
+      const refreshToken = this.jwtService.sign(payload, { expiresIn: '7d' });
+
+      user.refreshToken = refreshToken;
+      await user.save();
+
+      return { accessToken, refreshToken };
     } else {
       throw new UnauthorizedException('Invalid credentials');
     }
   }
 
-  async googleLogin(user: any): Promise<string> {
+  async googleLogin(
+    user: any,
+  ): Promise<{ accessToken: string; refreshToken: string }> {
     try {
       let existingUser = await this.userService.findUserByEmail(user.email);
 
@@ -106,9 +116,41 @@ export class AuthService {
         username: existingUser.username,
         role: existingUser.role,
       };
-      return this.jwtService.sign(payload);
+
+      const accessToken = this.jwtService.sign(payload, { expiresIn: '15m' });
+      const refreshToken = this.jwtService.sign(payload, { expiresIn: '7d' });
+
+      existingUser.refreshToken = refreshToken;
+      await existingUser.save();
+
+      return { accessToken, refreshToken };
     } catch (error) {
       throw error;
+    }
+  }
+
+  async refreshAccessToken(refreshToken: string): Promise<string> {
+    try {
+      const decoded = this.jwtService.verify(refreshToken);
+      const user = await this.userModel
+        .findOne({ _id: decoded._id, refreshToken })
+        .exec();
+
+      if (!user) {
+        throw new UnauthorizedException('Invalid refresh token');
+      }
+
+      const payload = {
+        _id: user._id,
+        username: user.username,
+        role: user.role,
+      };
+      const newAccessToken = this.jwtService.sign(payload, {
+        expiresIn: '15m',
+      });
+      return newAccessToken;
+    } catch (error) {
+      throw new UnauthorizedException('Could not refresh access token');
     }
   }
 }
