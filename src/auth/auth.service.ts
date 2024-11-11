@@ -153,4 +153,34 @@ export class AuthService {
       throw new UnauthorizedException('Could not refresh access token');
     }
   }
+
+  generateResetToken(userId: string): string {
+    try {
+      return this.jwtService.sign(
+        { userId },
+        {
+          secret: process.env.JWT_RESET_SECRET,
+          expiresIn: '1h',
+        },
+      );
+    } catch (error) {
+      throw new InternalServerErrorException('Failed to generate reset token');
+    }
+  }
+
+  verifyResetToken(token: string): string {
+    try {
+      const payload = this.jwtService.verify(token, {
+        secret: process.env.JWT_RESET_SECRET,
+      });
+      return payload.userId;
+    } catch (error) {
+      throw new UnauthorizedException('Invalid or expired reset token');
+    }
+  }
+
+  async resetPassword(token: string, newPassword: string): Promise<void> {
+    const userId = this.verifyResetToken(token);
+    await this.userService.updatePassword(userId, newPassword);
+  }
 }

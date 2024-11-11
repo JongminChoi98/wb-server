@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { LoggerModule } from 'nestjs-pino';
 import { AuthModule } from './auth/auth.module';
+import { MailModule } from './mail/mail.module';
 import { ServerHealthModule } from './server-health/server-health.module';
 import { TodoModule } from './todo/todo.module';
 import { UserModule } from './user/user.module';
@@ -24,13 +25,14 @@ import { UserModule } from './user/user.module';
                 },
               }
             : undefined,
-        level: 'info',
+        level: 'silent',
       },
     }),
     ServerHealthModule,
     UserModule,
     TodoModule,
     AuthModule,
+    MailModule,
   ],
 })
 export class AppModule {}
