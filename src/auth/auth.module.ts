@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { MongooseModule } from '@nestjs/mongoose';
+import { MailModule } from 'src/mail/mail.module';
 import { RolesGuard } from '../guards/roles.guard';
 import { User, UserSchema } from '../schema/user.schema';
 import { UserService } from '../user/user.service';
@@ -14,6 +15,7 @@ import { GoogleStrategy } from './strategy/google.strategy';
     JwtModule.register({
       secret: process.env.JWT_SECRET || 'secretKey',
     }),
+    MailModule,
   ],
   providers: [AuthService, UserService, RolesGuard, GoogleStrategy],
   controllers: [AuthController],

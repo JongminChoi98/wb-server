@@ -1,8 +1,10 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
   InternalServerErrorException,
+  NotFoundException,
   Post,
   Req,
   Res,
@@ -19,6 +21,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { Response } from 'express';
+import { MailService } from 'src/mail/mail.service';
 import { UserService } from 'src/user/user.service';
 import { RolesGuard } from '../guards/roles.guard';
 import { Roles, UserRole } from '../user/decorator/roles.decorator';
@@ -32,6 +35,7 @@ export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly userService: UserService,
+    private readonly mailService: MailService,
   ) {}
 
   @ApiExcludeEndpoint()
@@ -131,7 +135,51 @@ export class AuthController {
       res.cookie('access_token', newAccessToken, { httpOnly: true });
       return res.send({ access_token: newAccessToken });
     } catch (error) {
-      throw new UnauthorizedException('Invalid or expired refresh token');
+      throw new UnauthorizedException(
+        'Invalid or expired refresh token: ' + error.message,
+      );
+    }
+  }
+
+  @Post('forgot-password')
+  async forgotPassword(@Body('email') email: string) {
+    const user = await this.userService.findUserByEmail(email);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    try {
+      const resetToken = this.authService.generateResetToken(
+        user._id.toString(),
+      );
+
+      const resetLink = `${process.env.RESET_PASSWORD_FRONTEND_URL}/reset-password/${resetToken}`;
+
+      await this.mailService.sendPasswordResetEmail(email, resetLink);
+      return { message: 'Password reset link sent to your email' };
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Failed to process password reset request: ' + error.message,
+      );
+    }
+  }
+
+  @Post('reset-password')
+  async resetPassword(
+    @Body('token') token: string,
+    @Body('newPassword') newPassword: string,
+  ) {
+    if (!token || !newPassword) {
+      throw new BadRequestException('Token and new password must be provided');
+    }
+
+    try {
+      await this.authService.resetPassword(token, newPassword);
+      return { message: 'Password has been reset successfully' };
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Failed to reset password:' + error.message,
+      );
     }
   }
 }

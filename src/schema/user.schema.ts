@@ -24,6 +24,12 @@ export class User extends Document {
 
   @Prop({ type: String, required: false, default: null })
   refreshToken?: string;
+
+  @Prop({ type: String, required: false, default: null })
+  resetToken?: string;
+
+  @Prop({ type: Date, required: false, default: null })
+  resetTokenExpiry?: Date;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

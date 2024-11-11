@@ -97,4 +97,38 @@ export class UserService {
       throw new InternalServerErrorException('Failed to delete user');
     }
   }
+
+  async findUserByResetToken(resetToken: string): Promise<User | null> {
+    return this.userModel.findOne({ resetToken });
+  }
+
+  async setResetToken(
+    userId: string,
+    token: string,
+    expiryDate: Date,
+  ): Promise<void> {
+    try {
+      await this.userModel.findByIdAndUpdate(userId, {
+        resetToken: token,
+        resetTokenExpiry: expiryDate,
+      });
+    } catch (error) {
+      throw new InternalServerErrorException('Failed to set reset token');
+    }
+  }
+
+  async updatePassword(userId: string, newPassword: string): Promise<void> {
+    try {
+      const saltRounds = 10;
+      const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+
+      await this.userModel.findByIdAndUpdate(userId, {
+        password: hashedPassword,
+        resetToken: null,
+        resetTokenExpiry: null,
+      });
+    } catch (error) {
+      throw new InternalServerErrorException('Failed to update password');
+    }
+  }
 }
