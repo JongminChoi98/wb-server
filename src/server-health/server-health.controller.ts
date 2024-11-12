@@ -3,6 +3,13 @@ import { InjectConnection } from '@nestjs/mongoose';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Connection } from 'mongoose';
 
+interface HealthStatus {
+  status: string;
+  database: string;
+  uptime: number;
+  timestamp: string;
+}
+
 @ApiTags('Server Health')
 @Controller('server-health')
 export class ServerHealthController {
@@ -15,7 +22,7 @@ export class ServerHealthController {
   })
   @ApiResponse({ status: 500, description: 'Internal server error.' })
   @Get()
-  async checkHealth(): Promise<object> {
+  async checkHealth(): Promise<HealthStatus> {
     const getDatabaseStatus = (state: number): string => {
       switch (state) {
         case 0:

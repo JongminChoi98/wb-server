@@ -74,6 +74,7 @@
     "typescript": "^5.1.3"
   },
   "jest": {
+    "maxWorkers": 1,
     "moduleFileExtensions": [
       "js",
       "json",
@@ -85,7 +86,7 @@
       "^.+\\.(t|j)s$": "ts-jest"
     },
     "collectCoverageFrom": [
-      "**/*.(t|j)s"
+      "**/*.{service,controller}.ts"
     ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"
