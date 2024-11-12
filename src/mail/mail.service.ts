@@ -42,7 +42,6 @@ export class MailService {
     `,
     };
 
-    console.log(mailOptions.html);
     try {
       await this.transporter.sendMail(mailOptions);
     } catch (error) {
