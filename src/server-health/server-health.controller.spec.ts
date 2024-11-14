@@ -7,7 +7,7 @@ describe('ServerHealthController', () => {
   let controller: ServerHealthController;
   let mockConnection: Partial<Connection>;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     mockConnection = {
       readyState: 1,
     };

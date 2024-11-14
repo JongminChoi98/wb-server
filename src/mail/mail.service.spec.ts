@@ -13,7 +13,7 @@ describe('MailService', () => {
   let service: MailService;
   let transporterMock: jest.Mocked<nodemailer.Transporter>;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [MailService],
     }).compile();
