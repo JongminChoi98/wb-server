@@ -32,13 +32,11 @@ const mockTodoService = {
     dueDate: new Date(),
   })),
   deleteTodoById: jest.fn().mockResolvedValue({ deletedCount: 1 }),
-  updateTodoById: jest
-    .fn()
-    .mockImplementation((userId, todoId, updateTodoDto) => ({
-      _id: todoId,
-      user: userId,
-      ...updateTodoDto,
-    })),
+  updateTodoById: jest.fn().mockImplementation((userId, todoId, updateTodoDto) => ({
+    _id: todoId,
+    user: userId,
+    ...updateTodoDto,
+  })),
 };
 
 describe('TodoController', () => {
@@ -71,30 +69,20 @@ describe('TodoController', () => {
   });
 
   it.todo('should create a new todo for an authenticated user');
-  it.todo(
-    'should throw UnauthorizedException when creating a todo without a valid user',
-  );
+  it.todo('should throw UnauthorizedException when creating a todo without a valid user');
 
   it.todo('should get all todos for an authenticated user');
-  it.todo(
-    'should throw UnauthorizedException when getting todos without a valid user',
-  );
+  it.todo('should throw UnauthorizedException when getting todos without a valid user');
 
   it.todo('should get a specific todo by ID for an authenticated user');
-  it.todo(
-    'should throw UnauthorizedException when getting a todo without a valid user',
-  );
+  it.todo('should throw UnauthorizedException when getting a todo without a valid user');
   it.todo('should throw NotFoundException if the todo is not found by ID');
 
   it.todo('should delete a specific todo by ID for an authenticated user');
-  it.todo(
-    'should throw UnauthorizedException when deleting a todo without a valid user',
-  );
+  it.todo('should throw UnauthorizedException when deleting a todo without a valid user');
   it.todo('should throw NotFoundException if the todo to delete is not found');
 
   it.todo('should update a specific todo by ID for an authenticated user');
-  it.todo(
-    'should throw UnauthorizedException when updating a todo without a valid user',
-  );
+  it.todo('should throw UnauthorizedException when updating a todo without a valid user');
   it.todo('should throw NotFoundException if the todo to update is not found');
 });

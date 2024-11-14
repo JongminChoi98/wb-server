@@ -29,15 +29,11 @@ describe('TodoService', () => {
   it.todo('should throw InternalServerErrorException if creating todo fails');
 
   it.todo('should retrieve all todos for a specific user');
-  it.todo(
-    'should throw InternalServerErrorException if retrieving todos fails',
-  );
+  it.todo('should throw InternalServerErrorException if retrieving todos fails');
 
   it.todo('should retrieve a specific todo by ID for a user');
   it.todo('should throw NotFoundException if the todo is not found by ID');
-  it.todo(
-    'should throw InternalServerErrorException if retrieving todo by ID fails',
-  );
+  it.todo('should throw InternalServerErrorException if retrieving todo by ID fails');
 
   it.todo('should delete a specific todo by ID for a user');
   it.todo('should throw NotFoundException if the todo to delete is not found');

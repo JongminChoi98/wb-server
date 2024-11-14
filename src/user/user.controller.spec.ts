@@ -6,12 +6,10 @@ import { UserController } from './user.controller';
 import { UserService } from './user.service';
 
 const mockUserService = {
-  updateProfileImage: jest
-    .fn()
-    .mockImplementation((userId, profileImageUrl) => ({
-      _id: userId,
-      profileImageUrl,
-    })),
+  updateProfileImage: jest.fn().mockImplementation((userId, profileImageUrl) => ({
+    _id: userId,
+    profileImageUrl,
+  })),
 
   findUserByEmail: jest.fn().mockImplementation((email) => ({
     _id: 'userId',
@@ -83,32 +81,18 @@ describe('UserController', () => {
     expect(userController).toBeDefined();
   });
 
-  it.todo(
-    'should retrieve user profile successfully for an authenticated user',
-  );
-  it.todo(
-    'should throw UnauthorizedException when retrieving profile without a valid user',
-  );
+  it.todo('should retrieve user profile successfully for an authenticated user');
+  it.todo('should throw UnauthorizedException when retrieving profile without a valid user');
 
   it.todo('should update user profile successfully for an authenticated user');
-  it.todo(
-    'should throw InternalServerErrorException if email already exists during update',
-  );
+  it.todo('should throw InternalServerErrorException if email already exists during update');
 
-  it.todo(
-    'should throw InternalServerErrorException if username already exists during update',
-  );
-  it.todo(
-    'should throw UnauthorizedException when updating profile without a valid user',
-  );
+  it.todo('should throw InternalServerErrorException if username already exists during update');
+  it.todo('should throw UnauthorizedException when updating profile without a valid user');
 
   it.todo('should soft delete user profile successfully');
-  it.todo(
-    'should throw UnauthorizedException when deleting profile without a valid user',
-  );
+  it.todo('should throw UnauthorizedException when deleting profile without a valid user');
 
   it.todo('should update profile image successfully for an authenticated user');
-  it.todo(
-    'should throw UnauthorizedException when updating profile image without a valid user',
-  );
+  it.todo('should throw UnauthorizedException when updating profile image without a valid user');
 });

@@ -2,6 +2,6 @@ import { Module } from '@nestjs/common';
 import { ServerHealthController } from './server-health.controller';
 
 @Module({
-  controllers: [ServerHealthController]
+  controllers: [ServerHealthController],
 })
 export class ServerHealthModule {}

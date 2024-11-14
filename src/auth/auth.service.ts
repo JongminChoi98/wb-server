@@ -1,8 +1,4 @@
-import {
-  Injectable,
-  InternalServerErrorException,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Injectable, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import * as bcrypt from 'bcrypt';
@@ -35,10 +31,7 @@ export class AuthService {
   async register(createUserDto: CreateUserDto): Promise<User> {
     try {
       const saltRounds = 10;
-      const hashedPassword = await bcrypt.hash(
-        createUserDto.password,
-        saltRounds,
-      );
+      const hashedPassword = await bcrypt.hash(createUserDto.password, saltRounds);
 
       const newUser = new this.userModel({
         ...createUserDto,
@@ -55,13 +48,8 @@ export class AuthService {
     }
   }
 
-  async login(
-    loginUserDto: LoginUserDto,
-  ): Promise<{ accessToken: string; refreshToken: string }> {
-    const user = await this.validateUser(
-      loginUserDto.email,
-      loginUserDto.password,
-    );
+  async login(loginUserDto: LoginUserDto): Promise<{ accessToken: string; refreshToken: string }> {
+    const user = await this.validateUser(loginUserDto.email, loginUserDto.password);
 
     if (user) {
       const payload = {
@@ -82,9 +70,7 @@ export class AuthService {
     }
   }
 
-  async googleLogin(
-    user: any,
-  ): Promise<{ accessToken: string; refreshToken: string }> {
+  async googleLogin(user: any): Promise<{ accessToken: string; refreshToken: string }> {
     try {
       let existingUser = await this.userService.findUserByEmail(user.email);
 
@@ -99,16 +85,12 @@ export class AuthService {
         try {
           existingUser = await this.register(createUserDto);
         } catch (error) {
-          throw new InternalServerErrorException(
-            'Failed to create user during Google login',
-          );
+          throw new InternalServerErrorException('Failed to create user during Google login');
         }
       }
 
       if (!existingUser) {
-        throw new InternalServerErrorException(
-          'User could not be created or found',
-        );
+        throw new InternalServerErrorException('User could not be created or found');
       }
 
       const payload = {
@@ -132,9 +114,7 @@ export class AuthService {
   async refreshAccessToken(refreshToken: string): Promise<string> {
     try {
       const decoded = this.jwtService.verify(refreshToken);
-      const user = await this.userModel
-        .findOne({ _id: decoded._id, refreshToken })
-        .exec();
+      const user = await this.userModel.findOne({ _id: decoded._id, refreshToken }).exec();
 
       if (!user) {
         throw new UnauthorizedException('Invalid refresh token');

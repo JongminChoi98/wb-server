@@ -45,9 +45,7 @@ export class MailService {
     try {
       await this.transporter.sendMail(mailOptions);
     } catch (error) {
-      throw new InternalServerErrorException(
-        'Failed to send password reset email',
-      );
+      throw new InternalServerErrorException('Failed to send password reset email');
     }
   }
 }

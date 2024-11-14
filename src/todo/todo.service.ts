@@ -1,8 +1,4 @@
-import {
-  Injectable,
-  InternalServerErrorException,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Todo } from '../schema/todo.schema';
@@ -13,10 +9,7 @@ import { UpdateTodoDto } from './dto/update-todo.dto';
 export class TodoService {
   constructor(@InjectModel(Todo.name) private todoModel: Model<Todo>) {}
 
-  async createTodo(
-    userId: string,
-    createTodoDto: CreateTodoDto,
-  ): Promise<Todo> {
+  async createTodo(userId: string, createTodoDto: CreateTodoDto): Promise<Todo> {
     try {
       const newTodo = new this.todoModel({ ...createTodoDto, user: userId });
       return await newTodo.save();
@@ -35,9 +28,7 @@ export class TodoService {
 
   async findTodoById(userId: string, todoId: string): Promise<Todo> {
     try {
-      const todo = await this.todoModel
-        .findOne({ _id: todoId, user: userId })
-        .exec();
+      const todo = await this.todoModel.findOne({ _id: todoId, user: userId }).exec();
       if (!todo) {
         throw new NotFoundException('Todo not found');
       }
@@ -49,9 +40,7 @@ export class TodoService {
 
   async deleteTodoById(userId: string, todoId: string): Promise<void> {
     try {
-      const result = await this.todoModel
-        .deleteOne({ _id: todoId, user: userId })
-        .exec();
+      const result = await this.todoModel.deleteOne({ _id: todoId, user: userId }).exec();
       if (result.deletedCount === 0) {
         throw new NotFoundException('Todo not found');
       }
@@ -60,11 +49,7 @@ export class TodoService {
     }
   }
 
-  async updateTodoById(
-    userId: string,
-    todoId: string,
-    updateTodoDto: UpdateTodoDto,
-  ): Promise<Todo> {
+  async updateTodoById(userId: string, todoId: string, updateTodoDto: UpdateTodoDto): Promise<Todo> {
     try {
       const updatedTodo = await this.todoModel
         .findOneAndUpdate({ _id: todoId, user: userId }, updateTodoDto, {

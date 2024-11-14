@@ -1,25 +1,5 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  InternalServerErrorException,
-  Param,
-  Post,
-  Put,
-  Req,
-  UnauthorizedException,
-  UseGuards,
-  UsePipes,
-  ValidationPipe,
-} from '@nestjs/common';
-import {
-  ApiBearerAuth,
-  ApiBody,
-  ApiOperation,
-  ApiResponse,
-  ApiTags,
-} from '@nestjs/swagger';
+import { Body, Controller, Delete, Get, InternalServerErrorException, Param, Post, Put, Req, UnauthorizedException, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AuthenticatedRequest } from 'src/interfaces/authenticated-request.interface';
 import { RolesGuard } from '../guards/roles.guard';
 import { Roles, UserRole } from '../user/decorator/roles.decorator';
@@ -41,10 +21,7 @@ export class TodoController {
   @UseGuards(RolesGuard)
   @Post()
   @UsePipes(new ValidationPipe())
-  async createTodo(
-    @Body() createTodoDto: CreateTodoDto,
-    @Req() req: AuthenticatedRequest,
-  ) {
+  async createTodo(@Body() createTodoDto: CreateTodoDto, @Req() req: AuthenticatedRequest) {
     try {
       const userId = req.user?._id;
       if (!userId) {
@@ -58,9 +35,7 @@ export class TodoController {
 
       return await this.todoService.createTodo(userId, todoData);
     } catch (error) {
-      throw new InternalServerErrorException(
-        'Todo creation failed: ' + error.message,
-      );
+      throw new InternalServerErrorException('Todo creation failed: ' + error.message);
     }
   }
 
@@ -78,9 +53,7 @@ export class TodoController {
       }
       return await this.todoService.findAllTodosByUser(userId);
     } catch (error) {
-      throw new InternalServerErrorException(
-        'Failed to get todos: ' + error.message,
-      );
+      throw new InternalServerErrorException('Failed to get todos: ' + error.message);
     }
   }
 
@@ -99,9 +72,7 @@ export class TodoController {
       }
       return await this.todoService.findTodoById(userId, id);
     } catch (error) {
-      throw new InternalServerErrorException(
-        'Failed to get todo: ' + error.message,
-      );
+      throw new InternalServerErrorException('Failed to get todo: ' + error.message);
     }
   }
 
@@ -112,10 +83,7 @@ export class TodoController {
   @Roles(UserRole.Client)
   @UseGuards(RolesGuard)
   @Delete(':id')
-  async deleteTodoById(
-    @Param('id') id: string,
-    @Req() req: AuthenticatedRequest,
-  ) {
+  async deleteTodoById(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
     try {
       const userId = req.user?._id;
       if (!userId) {
@@ -124,9 +92,7 @@ export class TodoController {
       await this.todoService.deleteTodoById(userId, id);
       return { message: 'Todo deleted successfully' };
     } catch (error) {
-      throw new InternalServerErrorException(
-        'Failed to delete todo: ' + error.message,
-      );
+      throw new InternalServerErrorException('Failed to delete todo: ' + error.message);
     }
   }
 
@@ -139,11 +105,7 @@ export class TodoController {
   @UseGuards(RolesGuard)
   @Put(':id')
   @UsePipes(new ValidationPipe())
-  async updateTodo(
-    @Param('id') id: string,
-    @Body() updateTodoDto: UpdateTodoDto,
-    @Req() req: AuthenticatedRequest,
-  ) {
+  async updateTodo(@Param('id') id: string, @Body() updateTodoDto: UpdateTodoDto, @Req() req: AuthenticatedRequest) {
     try {
       const userId = req.user?._id;
       if (!userId) {
@@ -151,9 +113,7 @@ export class TodoController {
       }
       return await this.todoService.updateTodoById(userId, id, updateTodoDto);
     } catch (error) {
-      throw new InternalServerErrorException(
-        'Failed to update todo: ' + error.message,
-      );
+      throw new InternalServerErrorException('Failed to update todo: ' + error.message);
     }
   }
 }

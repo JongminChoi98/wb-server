@@ -20,8 +20,7 @@ describe('MailService', () => {
 
     service = module.get<MailService>(MailService);
 
-    transporterMock = (nodemailer.createTransport as jest.Mock).mock.results[0]
-      .value;
+    transporterMock = (nodemailer.createTransport as jest.Mock).mock.results[0].value;
   });
 
   it('should be defined', () => {
@@ -48,13 +47,9 @@ describe('MailService', () => {
       const to = 'test@example.com';
       const resetLink = 'http://localhost/reset-password/1234';
 
-      transporterMock.sendMail.mockRejectedValueOnce(
-        new Error('Failed to send email'),
-      );
+      transporterMock.sendMail.mockRejectedValueOnce(new Error('Failed to send email'));
 
-      await expect(
-        service.sendPasswordResetEmail(to, resetLink),
-      ).rejects.toThrow(InternalServerErrorException);
+      await expect(service.sendPasswordResetEmail(to, resetLink)).rejects.toThrow(InternalServerErrorException);
     });
   });
 });

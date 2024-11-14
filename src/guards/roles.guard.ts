@@ -1,9 +1,4 @@
-import {
-  CanActivate,
-  ExecutionContext,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
@@ -20,10 +15,7 @@ export class RolesGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const requiredRoles = this.reflector.getAllAndOverride<string[]>(
-      ROLES_KEY,
-      [context.getHandler(), context.getClass()],
-    );
+    const requiredRoles = this.reflector.getAllAndOverride<string[]>(ROLES_KEY, [context.getHandler(), context.getClass()]);
     if (!requiredRoles) {
       return true;
     }
@@ -32,9 +24,7 @@ export class RolesGuard implements CanActivate {
       return true;
     }
 
-    const request = context
-      .switchToHttp()
-      .getRequest<Request>() as AuthenticatedRequest;
+    const request = context.switchToHttp().getRequest<Request>() as AuthenticatedRequest;
     const authHeader = request.headers.authorization;
     let token: string | undefined;
 
@@ -57,8 +47,7 @@ export class RolesGuard implements CanActivate {
         const refreshToken = request.cookies?.refresh_token;
         if (refreshToken) {
           try {
-            const newAccessToken =
-              await this.authService.refreshAccessToken(refreshToken);
+            const newAccessToken = await this.authService.refreshAccessToken(refreshToken);
             request.cookies.access_token = newAccessToken;
             const user = this.jwtService.verify(newAccessToken);
             request.user = user;

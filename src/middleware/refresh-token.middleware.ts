@@ -1,8 +1,4 @@
-import {
-  Injectable,
-  NestMiddleware,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Injectable, NestMiddleware, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { NextFunction, Request, Response } from 'express';
 import { AuthService } from 'src/auth/auth.service';
@@ -15,8 +11,7 @@ export class RefreshTokenMiddleware implements NestMiddleware {
   ) {}
 
   async use(req: Request, res: Response, next: NextFunction) {
-    let token =
-      req.cookies?.access_token || req.headers.authorization?.split(' ')[1];
+    let token = req.cookies?.access_token || req.headers.authorization?.split(' ')[1];
 
     if (token) {
       try {
@@ -29,8 +24,7 @@ export class RefreshTokenMiddleware implements NestMiddleware {
           }
 
           try {
-            const newAccessToken =
-              await this.authService.refreshAccessToken(refreshToken);
+            const newAccessToken = await this.authService.refreshAccessToken(refreshToken);
             res.cookie('access_token', newAccessToken, { httpOnly: true });
             token = newAccessToken;
           } catch (err) {

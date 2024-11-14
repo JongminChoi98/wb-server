@@ -10,14 +10,9 @@ import { UpdateUserDto } from './dto/update-user.dto';
 export class UserService {
   constructor(@InjectModel(User.name) private userModel: Model<User>) {}
 
-  async updateProfileImage(
-    userId: string,
-    profileImageUrl: string,
-  ): Promise<User> {
+  async updateProfileImage(userId: string, profileImageUrl: string): Promise<User> {
     try {
-      return await this.userModel
-        .findByIdAndUpdate(userId, { profileImageUrl }, { new: true })
-        .exec();
+      return await this.userModel.findByIdAndUpdate(userId, { profileImageUrl }, { new: true }).exec();
     } catch (error) {
       throw new InternalServerErrorException('Failed to update profile image');
     }
@@ -33,9 +28,7 @@ export class UserService {
 
   async findUserByUsername(username: string): Promise<User | undefined> {
     try {
-      return await this.userModel
-        .findOne({ username, isDeleted: false })
-        .exec();
+      return await this.userModel.findOne({ username, isDeleted: false }).exec();
     } catch (error) {
       throw new InternalServerErrorException('Failed to find user by username');
     }
@@ -51,29 +44,19 @@ export class UserService {
 
   async findUserById(userId: string): Promise<User | undefined> {
     try {
-      return await this.userModel
-        .findOne({ _id: userId, isDeleted: false })
-        .exec();
+      return await this.userModel.findOne({ _id: userId, isDeleted: false }).exec();
     } catch (error) {
       throw new InternalServerErrorException('Failed to find user by ID');
     }
   }
 
-  async updateUser(
-    userId: string,
-    updateUserDto: UpdateUserDto,
-  ): Promise<User> {
+  async updateUser(userId: string, updateUserDto: UpdateUserDto): Promise<User> {
     try {
       if (updateUserDto.password) {
         const saltRounds = 10;
-        updateUserDto.password = await bcrypt.hash(
-          updateUserDto.password,
-          saltRounds,
-        );
+        updateUserDto.password = await bcrypt.hash(updateUserDto.password, saltRounds);
       }
-      return await this.userModel
-        .findByIdAndUpdate(userId, updateUserDto, { new: true })
-        .exec();
+      return await this.userModel.findByIdAndUpdate(userId, updateUserDto, { new: true }).exec();
     } catch (error) {
       throw new InternalServerErrorException('Failed to update user');
     }
@@ -82,9 +65,7 @@ export class UserService {
   async softDeleteUser(userId: string): Promise<void> {
     try {
       const randomEmail = `deleted_${uuidv4()}@wb-deleted.com`;
-      await this.userModel
-        .findByIdAndUpdate(userId, { isDeleted: true, email: randomEmail })
-        .exec();
+      await this.userModel.findByIdAndUpdate(userId, { isDeleted: true, email: randomEmail }).exec();
     } catch (error) {
       throw new InternalServerErrorException('Failed to delete user');
     }
@@ -102,11 +83,7 @@ export class UserService {
     return this.userModel.findOne({ resetToken });
   }
 
-  async setResetToken(
-    userId: string,
-    token: string,
-    expiryDate: Date,
-  ): Promise<void> {
+  async setResetToken(userId: string, token: string, expiryDate: Date): Promise<void> {
     try {
       await this.userModel.findByIdAndUpdate(userId, {
         resetToken: token,
