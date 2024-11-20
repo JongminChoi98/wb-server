@@ -90,6 +90,8 @@ export class UserService {
         resetTokenExpiry: expiryDate,
       });
     } catch (error) {
+      console.log('Error in setResetToken:', error.message); // Debug log
+
       throw new InternalServerErrorException('Failed to set reset token');
     }
   }

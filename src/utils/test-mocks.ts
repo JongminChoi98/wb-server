@@ -73,23 +73,50 @@ export const mockTodoModel = {
 };
 
 export const mockUserModel = {
-  findByIdAndUpdate: jest
-    .fn()
-    .mockImplementation((userId, updateData, options) => ({
-      _id: userId,
-      ...updateData,
-    })),
-  findOne: jest.fn().mockImplementation((query) => {
-    if (query.email) {
-      return { _id: 'userId', email: query.email, isDeleted: false };
-    } else if (query.username) {
-      return { _id: 'userId', username: query.username, isDeleted: false };
-    } else if (query.resetToken) {
-      return { _id: 'userId', resetToken: query.resetToken };
-    } else if (query._id) {
-      return { _id: query._id, isDeleted: false };
+  findByIdAndUpdate: jest.fn().mockImplementation((userId, updateData) => {
+    if (updateData.resetToken) {
+      return {
+        exec: jest.fn().mockResolvedValue({
+          _id: userId,
+          ...updateData,
+        }),
+      };
     }
-    return null;
+    return {
+      exec: jest.fn().mockResolvedValue({
+        _id: userId,
+        profileImageUrl: 'http://example.com/profile.jpg',
+      }),
+    };
+  }),
+  findOne: jest.fn().mockImplementation((query) => {
+    if (query.resetToken) {
+      return {
+        exec: jest.fn().mockResolvedValue({
+          _id: 'userId',
+          resetToken: query.resetToken,
+        }),
+      };
+    } else if (query.email) {
+      return {
+        exec: jest.fn().mockResolvedValue({
+          _id: 'userId',
+          email: query.email,
+          isDeleted: false,
+        }),
+      };
+    } else if (query.username) {
+      return {
+        exec: jest.fn().mockResolvedValue({
+          _id: 'userId',
+          username: query.username,
+          isDeleted: false,
+        }),
+      };
+    }
+    return {
+      exec: jest.fn().mockResolvedValue(null),
+    };
   }),
   find: jest.fn().mockResolvedValue([
     { _id: 'userId1', email: 'user1@example.com' },
